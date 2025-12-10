@@ -10,6 +10,8 @@ namespace BackendAPI.Application.Mapping
         {
             CreateMap<Repository, RepositoryDto>();
             CreateMap<RepositoryDto, Repository>();
+            CreateMap<SearchResult, SearchResultDto>();
+            CreateMap<SearchResultDto, SearchResult>();
         }
     }
 }

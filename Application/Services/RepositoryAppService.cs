@@ -21,17 +21,21 @@ namespace BackendAPI.Application.Services
             _relevanceCalculator = relevanceCalculator;
         }
 
-        public async Task<IEnumerable<RepositoryDto>> SearchRepositoriesAsync(SearchRequestDto request)
+        public async Task<SearchResultDto> SearchRepositoriesAsync(SearchRequestDto request)
         {
-            var repositories = await _repositoryService.SearchRepositoriesAsync(request.Query, request.Page, request.PerPage);
-            var dtos = _mapper.Map<IEnumerable<RepositoryDto>>(repositories);
+            var searchResult = await _repositoryService.SearchRepositoriesAsync(request.Query, request.Page, request.PerPage);
+            var dtos = _mapper.Map<IEnumerable<RepositoryDto>>(searchResult.Items);
 
             foreach (var dto in dtos)
             {
                 dto.RelevanceScore = _relevanceCalculator.CalculateScore(dto);
             }
 
-            return dtos;
+            return new SearchResultDto
+            {
+                TotalCount = searchResult.TotalCount,
+                Items = dtos
+            };
         }
 
         public async Task<RepositoryDto> ToggleFavoriteAsync(ToggleFavoriteRequestDto request)

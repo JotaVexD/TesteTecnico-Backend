@@ -46,8 +46,14 @@ namespace BackendAPI.Tests
                 new RepositoryDto { Id = 2, Name = "test2" }
             };
 
+            var searchResult = new SearchResult
+            {
+                TotalCount = 2,
+                Items = repositories
+            };
+
             _repositoryServiceMock.Setup(x => x.SearchRepositoriesAsync(request.Query, request.Page, request.PerPage))
-                .ReturnsAsync(repositories);
+                .ReturnsAsync(searchResult);
 
             _mapperMock.Setup(x => x.Map<IEnumerable<RepositoryDto>>(repositories))
                 .Returns(dtos);
@@ -58,8 +64,8 @@ namespace BackendAPI.Tests
             var result = await _service.SearchRepositoriesAsync(request);
 
             Assert.NotNull(result);
-            Assert.Equal(2, result.Count());
-            Assert.All(result, r => Assert.Equal(100, r.RelevanceScore));
+            Assert.Equal(2, result.Items.Count());
+            Assert.All(result.Items, r => Assert.Equal(100, r.RelevanceScore));
             _relevanceCalculatorMock.Verify(x => x.CalculateScore(It.IsAny<RepositoryDto>()), Times.Exactly(2));
         }
 

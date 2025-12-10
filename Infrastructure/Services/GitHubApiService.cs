@@ -37,14 +37,14 @@ namespace BackendAPI.Infrastructure.Services
             }
         }
 
-        public async Task<IEnumerable<Repository>> SearchRepositoriesAsync(string query,int page,int perPage)
+        public async Task<SearchResult> SearchRepositoriesAsync(string query, int page, int perPage)
         {
             if (string.IsNullOrWhiteSpace(query))
-                return Enumerable.Empty<Repository>();
+                return new SearchResult { TotalCount = 0, Items = new List<Repository>() };
 
-            var cacheKey = $"search_{query.ToLower()}";
+            var cacheKey = $"search_{query.ToLower()}_{page}_{perPage}";
 
-            if (!_cache.TryGetValue(cacheKey, out IEnumerable<Repository>? repositories))
+            if (!_cache.TryGetValue(cacheKey, out SearchResult? searchResult))
             {
                 try
                 {
@@ -55,25 +55,34 @@ namespace BackendAPI.Infrastructure.Services
                     var json = await response.Content.ReadAsStringAsync();
                     using var doc = JsonDocument.Parse(json);
 
-                    repositories = doc.RootElement
+                    // Obtém o total_count da resposta da API do GitHub
+                    var totalCount = doc.RootElement.GetProperty("total_count").GetInt32();
+
+                    var items = doc.RootElement
                         .GetProperty("items")
                         .EnumerateArray()
                         .Select(item => MapToRepository(item))
                         .ToList();
 
-                    _cache.Set(cacheKey, repositories, TimeSpan.FromMinutes(5));
+                    searchResult = new SearchResult
+                    {
+                        TotalCount = totalCount,
+                        Items = items
+                    };
+
+                    _cache.Set(cacheKey, searchResult, TimeSpan.FromMinutes(5));
 
                     lock (_favoritesLock)
                     {
-                        foreach (var repo in repositories)
+                        foreach (var repo in items)
                         {
                             if (!_searchedRepositories.Any(r => r.Id == repo.Id))
                                 _searchedRepositories.Add(repo);
                         }
                     }
 
-                    _logger.LogInformation("Found {Count} repositories for query: {Query}",
-                        repositories.Count(), query);
+                    _logger.LogInformation("Found {Count} repositories (total: {Total}) for query: {Query}",
+                        items.Count, totalCount, query);
                 }
                 catch (Exception ex)
                 {
@@ -82,7 +91,7 @@ namespace BackendAPI.Infrastructure.Services
                 }
             }
 
-            return repositories ?? Enumerable.Empty<Repository>();
+            return searchResult ?? new SearchResult { TotalCount = 0, Items = new List<Repository>() };
         }
 
         public async Task<Repository> ToggleFavoriteAsync(int repositoryId)
