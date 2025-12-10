@@ -1,0 +1,30 @@
+﻿# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+
+# VS/VS Code
+.vs/
+.vscode/
+.idea/
+
+# Build
+/publish/
+
+# Configurações sensíveis
+appsettings.Development.json
+appsettings.Production.json
+*.pfx
+*.p12
+
+# Logs e temporários
+*.log
+*.tmp
+*.temp
+
+# MacOS/Windows
+.DS_Store
+Thumbs.db
+/appsettings.json
