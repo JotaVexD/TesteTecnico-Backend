@@ -20,13 +20,13 @@ dotnet run
 
 ## Endpoints da API
 
-**GET** `/api/repositories/Search`
+**GET** `/api/Repositories/Search`
 - Busca repositórios no GitHub
 
-**POST** `/api/repositories/ToggleFavorite`
+**POST** `/api/Repositories/ToggleFavorite`
 - Adiciona/remove dos favoritos
 
-**GET** `/api/repositories/Relevant`
+**GET** `/api/Repositories/Relevant`
 - Lista repositórios por relevância
 
 ## Executando Testes
