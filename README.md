@@ -20,7 +20,7 @@ dotnet run
 
 ## Endpoints da API
 
-**GET** `/api/repositories/search?query=react`
+**GET** `/api/repositories/search`
 - Busca repositórios no GitHub
 
 **POST** `/api/repositories/toggle-favorite`
