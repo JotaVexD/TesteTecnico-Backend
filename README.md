@@ -32,10 +32,7 @@ dotnet run
 ## Executando Testes
 
 ```bash
-# Navegue até a pasta de testes
-cd backendAPI/src/RepositorioApi.Tests
-
-# Execute todos os testes
+# Execute todos os testes com
 dotnet test
 
 # Executar com detalhes
